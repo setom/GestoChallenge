@@ -1,53 +1,86 @@
-var Todo = require('./models/todo');
+var Food = require('./models/food');
 
-function getTodos(res) {
-    Todo.find(function (err, todos) {
+/*
+ * Generates a list of all the foods in the DB
+ */
+function getFoods(res) {
+    Food.find(function (err, foods) {
 
         // if there is an error retrieving, send the error. nothing after res.send(err) will execute
         if (err) {
             res.send(err);
         }
 
-        res.json(todos); // return all todos in JSON format
+        res.json(foods); // return all foods in JSON format
     });
+} 
+
+/*
+ * Generates the total of the cost of the food in the list
+ * Includes tax of 7.5% 
+ * returns a single object with a 'total' field that is the total of the order including tax
+ */
+function getTotal(res){
+    Food.aggregate([
+        //generate the subtotal of each item (item cost * tax of 7.5%)
+           {$project: {
+                   _id: "$_id", 
+                   subtotal: {$multiply: ["$price", "$tax"]}
+           }},
+        //sum all of the subtotals together
+            {$group : {
+                    _id: null, 
+                    total: {$sum: "$subtotal"}
+            }} 
+       ], 
+       function(err, result){
+           if(err){
+               res.send(err);
+           }
+           res.json(result);
+       });
 }
 ;
-
 module.exports = function (app) {
 
     // api ---------------------------------------------------------------------
-    // get all todos
-    app.get('/api/todos', function (req, res) {
-        // use mongoose to get all todos in the database
-        getTodos(res);
+    // get all foods
+    app.get('/api/food', function (req, res) {
+        // use mongoose to get all foods in the database
+        getFoods(res);
+    });
+    
+    //get the total of all the prices in the list, add 7.5% tax
+    app.get('/api/total', function(req, res){
+        getTotal(res);
     });
 
-    // create todo and send back all todos after creation
-    app.post('/api/todos', function (req, res) {
-
-        // create a todo, information comes from AJAX request from Angular
-        Todo.create({
-            text: req.body.text,
+    // create food and send back all foods after creation
+    app.post('/api/food', function (req, res) {
+        // create a food, information comes from AJAX request from Angular
+        Food.create({
+            price: req.body.num,
+            name: req.body.text,
             done: false
-        }, function (err, todo) {
+        }, function (err, food) {
             if (err)
                 res.send(err);
 
-            // get and return all the todos after you create another
-            getTodos(res);
+            // get and return all the food after you create another
+            getFoods(res);
         });
 
     });
 
-    // delete a todo
-    app.delete('/api/todos/:todo_id', function (req, res) {
-        Todo.remove({
-            _id: req.params.todo_id
-        }, function (err, todo) {
+    // delete a food
+    app.delete('/api/food/:food_id', function (req, res) {
+        Food.remove({
+            _id: req.params.food_id
+        }, function (err, food) {
             if (err)
                 res.send(err);
 
-            getTodos(res);
+            getFoods(res);
         });
     });
 
