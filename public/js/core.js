@@ -1,1 +1,1 @@
-angular.module('gestoEmeril', ['foodController', 'foodService', 'menuService']);
+angular.module('gestoEmeril', ['foodController', 'foodService', 'menuService', 'historyService']);

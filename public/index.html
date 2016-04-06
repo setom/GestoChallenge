@@ -27,6 +27,7 @@
         <script src="js/controllers/main.js"></script> <!-- load up our controller -->
         <script src="js/services/foods.js"></script> <!-- load our foods service -->
         <script src="js/services/menus.js"></script> <!-- load our menus service -->
+        <script src="js/services/histories.js"></script> <!-- load our histories service -->
         <script src="js/core.js"></script> <!-- load our main application -->
 
     </head>
@@ -37,73 +38,112 @@
             <div class="jumbotron text-center">
                 <h3>BAM!</h3>
                 <h4>Emeril's Hungry Hacker Challenge</h4>
+                <input type="checkbox" ng-model="menuToggle"> Show The Menu<br>
+                <input type="checkbox" ng-model="orderToggle"> Show The Current Order<br>
+                <input type="checkbox" ng-model="historyToggle"> Show The Historical Orders
             </div>
 
             <!-- MENU LIST -->
-            <h3>The Menu: </h3>
-            <div id="menu-list" class="row">
-                <h4>There are {{menus.length}} Menu items</h4>
-                <div class="col-sm-4 col-sm-offset-4">
-                    <table>
-                        <tr ng-repeat="menu in menus">
-                            <td id="order-item">{{menu.name}}</td>
-                            <td id="order-item">{{menu.price | currency}}</td>
-                            <td id="order-item"><button class="btn btn-primary btn-md" ng-click="addToOrder(menu)">Add to Current Order</button></td>
-                            <td><button class="btn btn-primary btn-md" ng-click="deleteMenuItem(menu._id)">Delete Menu Item</button></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-            <!-- FORM TO CREATE FOODS -->
-            <div id="food-form" class="row">
-                <div style="margin: 10px; ">
-                    <form>
-                        <div class="form-group">
-                            <h4>Can't Find What You Want? Add It Here!</h4>
-                            <!-- BIND THIS VALUE TO formData.text IN ANGULAR -->
-                            <input type="text" style =" width: 30%;" class="form-control input-sm text-center" placeholder="Eg: Pizza" ng-model="formData.text">
-                            <input type="number" style = "width: 30%;" class="form-control input-sm text-center" placeholder="$5.00" ng-model="formData.num">
-                        </div>
-
-                        <!-- createFood() WILL CREATE NEW FOODS -->
-                        <button type="submit" class="btn btn-primary btn-md" ng-click="createFood()">Add</button>
-                    </form>
-                </div>
-            </div>
-
-            <hr>
-            <hr>
-            <!-- ORDER LIST -->
-
-
-            <h3>The Current Order: </h3>
-            <div id="order-list" class="row">
-                <div class="col-sm-4 col-sm-offset-4">
-                    <!-- LOOP OVER THE FOOD IN $scope.foods -->
-                    <div>
+            <div ng-show="menuToggle">
+                <h3>The Menu: </h3>
+                <div id="menu-list" class="row">
+                    <h4>There are {{menus.length}} Menu items</h4>
+                    <div class="col-sm-4 col-sm-offset-4">
                         <table>
-                            <tr ng-repeat="food in foods">
-                                <td id="order-item">{{ food.name }}</td>
-                                <td id="order-item">{{ food.price | currency }}</td>
-                                <td><button class="btn btn-primary btn-md" ng-click="deleteFood(food._id)">Delete Item</button></td>
+                            <tr ng-repeat="menu in menus">
+                                <td id="order-item">{{menu.name}}</td>
+                                <td id="order-item">{{menu.price| currency}}</td>
+                                <td id="order-item"><button class="btn btn-primary btn-md" ng-click="addToOrder(menu)">Add to Current Order</button></td>
+                                <td><button class="btn btn-primary btn-md" ng-click="deleteMenuItem(menu._id)">Delete Menu Item</button></td>
                             </tr>
                         </table>
                     </div>
-                    <p class="text-center" ng-show="loading">
-                        <span class="fa fa-spinner fa-spin fa-3x"></span>
-                    </p>
                 </div>
-                <h3>{{ foods.length }} Items</h3>
-                <h3>Total + Tax = {{ orderTotal.total | currency }}</h3>
-            </div>
 
-            <div class="text-center text-muted">
-                <p>A demo by <a href="http://scotch.io">Scotch</a>.</p>
-                <p>Read the <a href="http://scotch.io/tutorials/javascript/creating-a-single-page-todo-app-with-node-and-angular">tutorial</a>.</p>
-            </div>
+                <!-- FORM TO CREATE FOODS -->
+                <div id="food-form" class="row">
+                    <div style="margin: 10px; ">
+                        <form>
+                            <div class="form-group">
+                                <h4>Can't Find What You Want? Add It Here!</h4>
+                                <!-- BIND THIS VALUE TO formData.text IN ANGULAR -->
+                                <input type="text" style =" width: 30%;" class="form-control input-sm text-center" placeholder="Eg: Pizza" ng-model="formData.text">
+                                <input type="number" style = "width: 30%;" class="form-control input-sm text-center" placeholder="$5.00" ng-model="formData.num">
+                            </div>
 
+                            <!-- createFood() WILL CREATE NEW FOODS -->
+                            <button type="submit" class="btn btn-primary btn-md" ng-click="createFood()">Add</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <hr>
+            <!-- ORDER LIST -->
+            <div ng-show="orderToggle">
+                <h3>The Current Order: </h3>
+                <div id="order-list" class="row">
+                    <div class="col-sm-4 col-sm-offset-4">
+                        <!-- LOOP OVER THE FOOD IN $scope.foods -->
+                        <div>
+                            <table>
+                                <tr ng-repeat="food in foods">
+                                    <td id="order-item">{{ food.name}}</td>
+                                    <td id="order-item">{{ food.price | currency }}</td>
+                                    <td><button class="btn btn-primary btn-md" ng-click="deleteFood(food._id)">Delete Item</button></td>
+                                </tr>
+                            </table>
+                        </div>
+                        <p class="text-center" ng-show="loading">
+                            <span class="fa fa-spinner fa-spin fa-3x"></span>
+                        </p>
+                    </div>
+                    <h3>{{ foods.length}} Items</h3>
+                    <h3>Total + Tax = {{ orderTotal.total | currency }}</h3>
+                    <button class="btn btn-primary btn-md" ng-click="submitOrder()">Submit Order</button>
+                    <button class="btn btn-primary btn-md" ng-click="clearAll()">Clear All</button>
+                </div>
+            </div>
+            <div ng-show="historyToggle">
+                <div id="analytics">
+                    <hr>
+                    <hr>
+                    <h3>Historical Orders & Analytics: </h3>
+                    <div id="order-list" class="row">
+                        <div class="col-sm-4 col-sm-offset-4">
+                            <!-- LOOP OVER THE ORDERS IN $scope.histories -->
+                            <div>
+                                <form>
+                                    <label>
+                                        <input type="radio" ng-model="mySort" value="orderTotal"> Sort By Total
+                                    </label><br>
+                                    <label>
+                                        <input type="radio" ng-model="mySort" value="date"> Sort By Date
+                                    </label><br>
+                                </form>
+                                <hr>
+                                <form>
+                                    <label>
+                                        <input type="radio" ng-model="myOrder" value="false"> Ascending
+                                    </label><br>
+                                    <label>
+                                        <input type="radio" ng-model="myOrder" value="true"> Descending
+                                    </label><br>
+                                </form>
+                                <hr>
+                                <table>
+                                    <tr ng-repeat="history in histories| orderBy: mySort: myOrder ">
+                                        <td id="order-item">{{ history.orderTotal | currency }}</td>
+                                        <td id="order-item">{{ history.date | date:'medium' }}</td>
+                                        <td><button class="btn btn-primary btn-md" ng-click="deleteHistory(history._id)">Delete Item</button></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary btn-md" ng-click="clearAllHistory()">Clear All</button>
+                    </div>
+                </div>
+            </div>
         </div>
-
     </body>
 </html>

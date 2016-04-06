@@ -2,6 +2,8 @@
 var Food = require('./models/food');
 //the DB for food on the menu
 var Menu = require('./models/menu');
+//the DB for the order history
+var History = require('./models/history');
 
 /*
  * Generates a list of all foods on the menu
@@ -30,7 +32,19 @@ function getFoods(res) {
         res.json(foods); // return all foods in JSON format
     });
 } 
+/*
+ * Generates a list of all historical orders
+ */
+function getHistory(res){
+    History.find(function(err, histories){
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        if (err) {
+            res.send(err);
+        }
 
+        res.json(histories); // return all foods in JSON format
+    });
+}
 /*
  * Generates the total of the cost of the food in the list
  * Includes tax of 7.5% 
@@ -72,6 +86,11 @@ module.exports = function (app) {
         getMenu(res);
     });
     
+    //get all the historical orders
+    app.get('/api/histories', function(req, res){
+        getHistory(res);
+    });
+    
     //get the total of all the prices in the list, add 7.5% tax
     app.get('/api/total', function(req, res){
         getTotal(res);
@@ -110,6 +129,22 @@ module.exports = function (app) {
         });
 
     });
+    
+    // create history and send back all foods after creation
+    app.post('/api/histories', function (req, res) {
+        // create a food, information comes from AJAX request from Angular
+        History.create({
+            date: req.body.date,
+            orderTotal: req.body.total,
+            done: false
+        }, function (err, history) {
+            if (err)
+                res.send(err);
+
+            // get and return all the food after you create another
+            getHistory(res);
+        });
+    });
 
     // delete a food
     app.delete('/api/food/:food_id', function (req, res) {
@@ -132,6 +167,38 @@ module.exports = function (app) {
                 res.send(err);
 
             getMenu(res);
+        });
+    });
+    
+    // delete a history item
+    app.delete('/api/histories/:history_id', function (req, res) {
+        History.remove({
+            _id: req.params.history_id
+        }, function (err, history) {
+            if (err)
+                res.send(err);
+
+            getHistory(res);
+        });
+    });
+    
+    //delete ALL foods
+    app.delete('/api/food/', function(req, res){
+        Food.remove({}, function (err, food) {
+            if (err)
+                res.send(err);
+
+            getFoods(res);
+        });
+    });
+    
+    //delete ALL histories
+    app.delete('/api/histories/', function(req, res){
+        History.remove({}, function (err, history) {
+            if (err)
+                res.send(err);
+
+            getHistory(res);
         });
     });
 

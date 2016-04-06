@@ -1,9 +1,10 @@
 angular.module('foodController', [])
 
 	// inject the Food factory to the controller
-	.controller('mainController', ['$scope','$http','Foods', 'Menus', function($scope, $http, Foods, Menus) {
+	.controller('mainController', ['$scope','$http','Foods', 'Menus', 'Histories', function($scope, $http, Foods, Menus, Histories) {
 		$scope.formData = {};
                 $scope.menuItem = {};
+                $scope.orderData = {};
 		$scope.loading = true;
 
 		//Immediately on landing on the page, query the Foods DB to get anything in the order
@@ -24,7 +25,11 @@ angular.module('foodController', [])
                         .success(function(data) {
                              $scope.orderTotal = data[0];                              
                         });
-                
+                        
+                Histories.get()
+                        .success(function(data){
+                            $scope.histories = data;
+                        });
 
 		// CREATE ==================================================================
 		// when submitting the add form, send the text and price to the node API
@@ -74,7 +79,28 @@ angular.module('foodController', [])
                         .success(function(data) {
                              $scope.orderTotal = data[0];                              
                         });
-                }
+                };
+                
+                $scope.submitOrder = function(){
+                    $scope.loading = true;
+                    $scope.orderData.date = new Date();
+                    $scope.orderData.total = $scope.orderTotal.total;
+                    Histories.create($scope.orderData)
+                            .success(function(data){
+                                $scope.orderData = {};
+                                $scope.orderHistory = data;
+                                Foods.clear()
+                                        .success(function(data){
+                                            $scope.loading = false;
+                                            $scope.foods = data;
+                                });
+                    });
+                    Histories.get()
+                        .success(function(data){
+                            $scope.histories = data;
+                        });
+                };
+                
 		// DELETE ==================================================================
 		// delete a food
 		$scope.deleteFood = function(id) {
@@ -101,6 +127,44 @@ angular.module('foodController', [])
                             .success(function(data){
                                 $scope.loading = false;
                                 $scope.menus = data;
+                    });
+                };
+                
+                //delete an order history 
+                $scope.deleteHistory = function(id){
+                    $scope.loading = true;
+                    
+                    Histories.delete(id)
+                            .success(function(data){
+                                $scope.histories = data;
+                                $scope.loading = false;
+                    });
+                };
+                
+                //delete all items from the food/order list
+                $scope.clearAll = function(){
+                    $scope.loading = true;
+                    
+                    Foods.clear()
+                            .success(function(data){
+                                $scope.loading = false;
+                                $scope.foods = data;
+                    });
+                    
+                    //update the costs
+                    Foods.total()
+                            .success(function(data) {
+                                 $scope.orderTotal = data[0];                              
+                            });  
+                };
+                
+                //delete all histories from the history list
+                $scope.clearAllHistory = function(){
+                    $scope.loading = true;
+                    Histories.clear()
+                            .success(function(data){
+                                $scope.histories = data;
+                                $scope.loading = false;
                     });
                 };
 	}]);

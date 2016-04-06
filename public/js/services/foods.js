@@ -20,6 +20,10 @@ angular.module('foodService', [])
                     //returns an object with a 'total' field
                     total: function () {
                         return $http.get('/api/total');
+                    }, 
+                    //remove all items from the food list
+                    clear: function(){
+                        return $http.delete('/api/food/');
                     }
                 };
             }]);
