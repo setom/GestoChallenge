@@ -1,0 +1,24 @@
+Gesto Challenges
+Matthew Seto 
+This is the Gest challenge application that follows the instructions given by Michelle Tomes. It is a single page application that allows a user to handle a menu, order and order history for a particular food business. The intention of the application is to allow a chef/business owner to handle orders for food and to save order history for analysis at a later date. 
+The application is built on the MEAN stack, using MongoDB to house menu, order and historical order data. That data is passed to the front end through Node so that the AngularJS front end can display and refine the data for the user to interact with. 
+At this time the UI is rudimentary and consists of a single page application with toggle controls for displaying or hiding the three main fields of the application: the menu, the current order, and historical orders. The UI should be refined with the help of a UX designer in order to make the visual more appealing to the user. 
+The Gesto Challenge also defined some challenge options to be implemented as I saw fit, the following are the three challenges included in this application: 
+
+Wild Card: 
+The wild card I chose to implement was a running total of the current order. As a user adds items to the order, a list is populated at the bottom of the page that displays all the items in the current order and the current total of those items (including tax). 
+The user will get some other options with this feature, they can submit the order to an order history collection (discussed below, this was another challenge feature), or they can remove all the items from the list and start over. Alternatively, the user can delete one item at a time from the order if they accidentally added something or the customer changes their mind.  
+This feature is similar to a point of sale system where the user can receive visual confirmation that their items have been successfully added to the order before proceeding. Once the order is complete it can be sent to the order history collection. 
+
+Menu Builder: 
+The menu component of this application will allow the user to select from pre-designated menu items in a menu database. If the desired item is not in the menu, the user can add that item to the menu so that it is available for future use. 
+To begin this challenge section, I first set up a second collection using mongoose. This collection was named Menu, and it contains the same schema as the Foods collection {name : String, price : number, tax : number}. Using these two collections I organized the app using the Menu as all available food options, and Food as the current order. 
+When the app first loads, the Menu and Food DB will be empty.  As the user enters item information for orders, those items are stored in the menu database. As the user continues to create food orders, the menu will capture all the unique items that are generated. 
+Currently, the application does not check for duplicate entries in the menu database, though that functionality would be a requirement prior to any official release.   
+
+Order History / Analytics:
+The order history component of the application allows the user to store the most crucial data concerning each transaction. In this case, a database is set up to capture order data as it is submitted by the user. The order data captured is the total cost of the order, and the precise date and time of the transaction. 
+Similar to the menu builder, I first set up a collection through mongoose named History. The schema is Date: date, and orderTotal: number. Tracking these will allow the user to see trends in day to day sales, and hopefully target more effective planning for time of day and day of week strategies. 
+The Order history can be ordered by either total value or date using the build in AngularJS filters. The user can toggle the order filter through the user interface. The user may also decide to sort ascending or descending. 
+Other order history that might be useful moving forward, a tally of which items are the most or least sold or the frequency with which some items are sold together. These should be considered when deciding what type of analytics the customer is looking for. 
+ 
