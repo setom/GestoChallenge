@@ -99,6 +99,11 @@ angular.module('foodController', [])
                         .success(function(data){
                             $scope.histories = data;
                         });
+                    //What is the current cost of the order?
+                    Foods.total()
+                        .success(function(data) {
+                             $scope.orderTotal = data[0];                              
+                        });
                 };
                 
 		// DELETE ==================================================================
