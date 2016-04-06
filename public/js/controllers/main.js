@@ -82,6 +82,7 @@ angular.module('foodController', [])
                 };
                 
                 $scope.submitOrder = function(){
+                    if($scope.foods.length !== 0){
                     $scope.loading = true;
                     $scope.orderData.date = new Date();
                     $scope.orderData.total = $scope.orderTotal.total;
@@ -105,6 +106,7 @@ angular.module('foodController', [])
                              $scope.orderTotal = data[0];                              
                         });
                 };
+            };
                 
 		// DELETE ==================================================================
 		// delete a food
