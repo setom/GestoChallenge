@@ -1,5 +1,21 @@
+//the DB for food in the order
 var Food = require('./models/food');
+//the DB for food on the menu
+var Menu = require('./models/menu');
 
+/*
+ * Generates a list of all foods on the menu
+ */
+function getMenu(res){
+    Menu.find(function(err, menus){
+        // if there is an error retrieving, send the error. nothing after res.send(err) will execute
+        if (err) {
+            res.send(err);
+        }
+
+        res.json(menus); // return all foods in JSON format
+    });
+}
 /*
  * Generates a list of all the foods in the DB
  */
@@ -50,6 +66,12 @@ module.exports = function (app) {
         getFoods(res);
     });
     
+    //get all the menu items
+    app.get('/api/menu', function (req, res) {
+        // use mongoose to get all foods in the database
+        getMenu(res);
+    });
+    
     //get the total of all the prices in the list, add 7.5% tax
     app.get('/api/total', function(req, res){
         getTotal(res);
@@ -71,6 +93,23 @@ module.exports = function (app) {
         });
 
     });
+    
+        // create food and send back all foods after creation
+    app.post('/api/menu', function (req, res) {
+        // create a food, information comes from AJAX request from Angular
+        Menu.create({
+            price: req.body.num,
+            name: req.body.text,
+            done: false
+        }, function (err, food) {
+            if (err)
+                res.send(err);
+
+            // get and return all the food after you create another
+            getMenu(res);
+        });
+
+    });
 
     // delete a food
     app.delete('/api/food/:food_id', function (req, res) {
@@ -81,6 +120,18 @@ module.exports = function (app) {
                 res.send(err);
 
             getFoods(res);
+        });
+    });
+    
+    // delete a menu item
+    app.delete('/api/menu/:menu_id', function (req, res) {
+        Menu.remove({
+            _id: req.params.menu_id
+        }, function (err, food) {
+            if (err)
+                res.send(err);
+
+            getMenu(res);
         });
     });
 

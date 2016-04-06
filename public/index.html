@@ -2,84 +2,108 @@
 
 <!-- ASSIGN OUR ANGULAR MODULE -->
 <html ng-app="gestoEmeril">
-<head>
-	<!-- META -->
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+    <head>
+        <!-- META -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
 
-	<title>Gesto Tech Challenge</title>
+        <title>Gesto Tech Challenge</title>
 
-	<!-- SCROLLS -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
-	<style>
-		html 					{ overflow-y:scroll; }
-		body 					{ padding-top:50px; }
-		#todo-list 				{ margin-bottom:30px; }
-		#todo-form 	 			{ margin-bottom:50px; }
-	</style>
+        <!-- SCROLLS -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
+        <link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+        <style>
+            html 					{ overflow-y:scroll; }
+            body 					{ padding-top:25px; margin: 10px; }
+            #order-list 				{ margin-bottom:30px; }
+            #food-form                                  { margin-bottom:50px; }
+            #menu-list                                  { margin-bottom:30px; }
+            #order-item                                 {padding-right: 20px; }
+        </style>
 
-	<!-- SPELLS -->
-	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script><!-- load angular -->
+        <!-- SPELLS -->
+        <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.16/angular.min.js"></script><!-- load angular -->
 
-	<script src="js/controllers/main.js"></script> <!-- load up our controller -->
-	<script src="js/services/foods.js"></script> <!-- load our foods service -->
-	<script src="js/core.js"></script> <!-- load our main application -->
+        <script src="js/controllers/main.js"></script> <!-- load up our controller -->
+        <script src="js/services/foods.js"></script> <!-- load our foods service -->
+        <script src="js/services/menus.js"></script> <!-- load our menus service -->
+        <script src="js/core.js"></script> <!-- load our main application -->
 
-</head>
-<!-- SET THE CONTROLLER -->
-<body ng-controller="mainController">
-	<div class="container">
+    </head>
+    <!-- SET THE CONTROLLER -->
+    <body ng-controller="mainController">
+        <div class="container">
+            <!-- HEADER -->
+            <div class="jumbotron text-center">
+                <h3>BAM!</h3>
+                <h4>Emeril's Hungry Hacker Challenge</h4>
+            </div>
 
-		<!-- HEADER -->
-		<div class="jumbotron text-center">
-			<h1>I'm a Food-aholic <span class="label label-info">{{ foods.length }}</span></h1>
-		</div>
+            <!-- MENU LIST -->
+            <h3>The Menu: </h3>
+            <div id="menu-list" class="row">
+                <h4>There are {{menus.length}} Menu items</h4>
+                <div class="col-sm-4 col-sm-offset-4">
+                    <table>
+                        <tr ng-repeat="menu in menus">
+                            <td id="order-item">{{menu.name}}</td>
+                            <td id="order-item">{{menu.price | currency}}</td>
+                            <td id="order-item"><button class="btn btn-primary btn-md" ng-click="addToOrder(menu)">Add to Current Order</button></td>
+                            <td><button class="btn btn-primary btn-md" ng-click="deleteMenuItem(menu._id)">Delete Menu Item</button></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
 
-		<!-- FOOD LIST -->
-		<div id="todo-list" class="row">
-			<div class="col-sm-4 col-sm-offset-4">
+            <!-- FORM TO CREATE FOODS -->
+            <div id="food-form" class="row">
+                <div style="margin: 10px; ">
+                    <form>
+                        <div class="form-group">
+                            <h4>Can't Find What You Want? Add It Here!</h4>
+                            <!-- BIND THIS VALUE TO formData.text IN ANGULAR -->
+                            <input type="text" style =" width: 30%;" class="form-control input-sm text-center" placeholder="Eg: Pizza" ng-model="formData.text">
+                            <input type="number" style = "width: 30%;" class="form-control input-sm text-center" placeholder="$5.00" ng-model="formData.num">
+                        </div>
 
-				
+                        <!-- createFood() WILL CREATE NEW FOODS -->
+                        <button type="submit" class="btn btn-primary btn-md" ng-click="createFood()">Add</button>
+                    </form>
+                </div>
+            </div>
 
-				<!-- LOOP OVER THE FOOD IN $scope.foods -->
-				<div class="checkbox" ng-repeat="food in foods">
-					<label>
-						<input type="checkbox" ng-click="deleteFood(food._id)"> {{ food.name }}
-                                                <p>{{food.price}}</p>
-					</label>
-				</div>
+            <hr>
+            <hr>
+            <!-- ORDER LIST -->
 
-				<p class="text-center" ng-show="loading">
-					<span class="fa fa-spinner fa-spin fa-3x"></span>
-				</p>
 
-			</div>
-		</div>
+            <h3>The Current Order: </h3>
+            <div id="order-list" class="row">
+                <div class="col-sm-4 col-sm-offset-4">
+                    <!-- LOOP OVER THE FOOD IN $scope.foods -->
+                    <div>
+                        <table>
+                            <tr ng-repeat="food in foods">
+                                <td id="order-item">{{ food.name }}</td>
+                                <td id="order-item">{{ food.price | currency }}</td>
+                                <td><button class="btn btn-primary btn-md" ng-click="deleteFood(food._id)">Delete Item</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <p class="text-center" ng-show="loading">
+                        <span class="fa fa-spinner fa-spin fa-3x"></span>
+                    </p>
+                </div>
+                <h3>{{ foods.length }} Items</h3>
+                <h3>Total + Tax = {{ orderTotal.total | currency }}</h3>
+            </div>
 
-		<!-- FORM TO CREATE FOODS -->
-		<div id="todo-form" class="row">
-			<div class="col-sm-8 col-sm-offset-2 text-center">
-				<form>
-					<div class="form-group">
+            <div class="text-center text-muted">
+                <p>A demo by <a href="http://scotch.io">Scotch</a>.</p>
+                <p>Read the <a href="http://scotch.io/tutorials/javascript/creating-a-single-page-todo-app-with-node-and-angular">tutorial</a>.</p>
+            </div>
 
-						<!-- BIND THIS VALUE TO formData.text IN ANGULAR -->
-						<input type="text" class="form-control input-lg text-center" placeholder="What are you ordering?" ng-model="formData.text">
-                                                <input type="number" class="form-control input-lg text-center" placeholder="How much does it cost?" ng-model="formData.num">
-					</div>
+        </div>
 
-					<!-- createFood() WILL CREATE NEW FOODS -->
-					<button type="submit" class="btn btn-primary btn-lg" ng-click="createFood()">Add</button>
-				</form>
-			</div>
-		</div>
-
-		<div class="text-center text-muted">
-			<p>A demo by <a href="http://scotch.io">Scotch</a>.</p>
-			<p>Read the <a href="http://scotch.io/tutorials/javascript/creating-a-single-page-todo-app-with-node-and-angular">tutorial</a>.</p>
-		</div>
-
-	</div>
-
-</body>
+    </body>
 </html>
